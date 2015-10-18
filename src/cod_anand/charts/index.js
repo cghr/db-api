@@ -1,6 +1,4 @@
 var express = require('express');
-var dao = require('../../dao')
-var _ = require('lodash')
 var sqlUtil = require('../../dao/util')
 var dateFormat = require('dateformat');
 var router = express.Router();
