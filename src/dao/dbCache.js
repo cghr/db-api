@@ -6,49 +6,55 @@ var connection;
 mysql.createConnection(dbConfig)
 	.then(function(conn) {
 		connection = conn;
-		new DbCache().loadPrimaryKeys(['isha', 'cod_anand'])
+		new DbCache().cacheMetadata(['isha', 'cod_anand'])
 	});
 
 class DbCache {
 
-	loadPrimaryKeys(contexts) {
-		let self = this
+	cacheMetadata(contexts) {
 
-		contexts.forEach(context => {
-			self._tables(context)
+		let cachePrimaryKey = function(context, table) {
+			_loadIdFor(context, table)
+				.then(id => cache.put(`ids/${context}/${table}`, id))
+
+		};
+		let cacheTables = function(context) {
+			_tables(context)
 				.then(tables => {
-					tables.forEach(table => {
-
-						self._loadIdFor(context, table)
-							.then(id => cache.put('ids/' + context + '/' + table, id))
-
-					})
+					cache.put('tables/' + context, tables)
+					tables.forEach((table) => cachePrimaryKey(context, table))
 
 				})
 
-		})
+		};
+		let _tables = function(context) {
+
+			return connection.query('SELECT table_name FROM information_schema.tables WHERE table_schema=?', [context])
+				.then(function(rows) {
+					return rows.map(row => row.table_name)
+				})
+
+		};
+
+		let _loadIdFor = function(context, table) {
+			return connection.query(`desc ${context}.${table}`)
+				.then(rows => {
+					return rows[0].Field;
+				})
+				.catch(e => console.log(e))
+		};
+
+		contexts.forEach(cacheTables)
 	}
 
 	idFor(context, table) {
 		return cache.get('ids/' + context + '/' + table)
 	}
-
-	_tables(context) {
-
-		return connection.query('SELECT table_name FROM information_schema.tables WHERE table_schema=?', [context])
-			.then(function(rows) {
-				return rows.map(row => row.table_name)
-			})
-
+	tablesFor(context) {
+		return cache.get('tables/' + context)
 	}
 
-	_loadIdFor(context, table) {
-		return connection.query(`desc ${context}.${table}`)
-			.then(rows => {
-				return rows[0].Field;
-			})
-			.catch(e => console.log(e))
-	}
+
 }
 
 module.exports = new DbCache()
