@@ -1,15 +1,15 @@
 var express = require('express');
 var router = express.Router();
 var sqlUtil = require('../../dao/util')
-var dateFormat = require('dateformat');
+var dateUtil = require('../../dateUtil');
 
-let today = () => dateFormat(new Date(), "yyyy-MM-dd") + '%';
+
 
 let context = 'cod_anand'
 let reports = {
 	downloads: "SELECT  username,COUNT(*)  downloads FROM user  a  JOIN   outbox b ON a.id=b.recipient  WHERE role!='user'  AND dwnStatus IS NULL GROUP BY  b.recipient",
-	va: "select username name,count(*) surveys from user a join feedback b on a.id=b.surveyor where b.timelog like '$today' and surveytype='va' group by b.surveyor",
-	esl: "select username name,count(*) surveys from user a join feedback b on a.id=b.surveyor where b.timelog like '$today' and surveytype is null group by b.surveyor"
+	va: "select username name,count(*) surveys from user a join feedback b on a.id=b.surveyor where b.timelog like " + dateUtil.today() + "%" + " and surveytype='va' group by b.surveyor",
+	esl: "select username name,count(*) surveys from user a join feedback b on a.id=b.surveyor where b.timelog like " + dateUtil.today() + "%" + " and surveytype is null group by b.surveyor"
 }
 
 router.get('/:type', (req, res) => {

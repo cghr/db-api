@@ -3,7 +3,8 @@ var dao = require('../dao')
 var router = express.Router();
 var _ = require('lodash')
 
-router.get('/:context/rest/:entity', (req, res) => {
+router
+	.get('/:context/rest/:entity', (req, res) => {
 
 		let [params, queryParams] = [req.params, req.query]
 		let [context, entity] = [params.context, params.entity]

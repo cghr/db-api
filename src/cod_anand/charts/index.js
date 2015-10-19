@@ -1,9 +1,7 @@
 var express = require('express');
 var sqlUtil = require('../../dao/util')
-var dateFormat = require('dateformat');
 var router = express.Router();
 
-let today = () => dateFormat(new Date(), "yyyy-MM-dd") + '%';
 
 let context = 'cod_anand'
 let reports = {
@@ -21,8 +19,8 @@ let reports = {
 router.get('/:charId', (req, res) => {
 
 	let params = req.params
-	let sql = reports[params.reportId]
-	sqlUtil.writeResponse(context, sql, [params.areaId], res)
+	let sql = reports[params.charId]
+	sqlUtil.writeResponse(context, sql, [], res)
 })
 
 module.exports = router;
